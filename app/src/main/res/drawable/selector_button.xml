@@ -1,0 +1,6 @@
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <item android:state_focused="true" android:drawable="@drawable/shape_button_focus"/>
+    <item android:state_focused="false" android:drawable="@drawable/shape_button" />
+</selector>
