@@ -45,9 +45,9 @@ jstring jmsg;
 JNIEnv *vm;
 jobject thizz;
 JavaVM *jvm = NULL;
-DETECT_RESULT *mic_result = NULL;
-char szTmp[ONE_FRAME_SZ] = {0};
 char str[300];
+char szTmp[ONE_FRAME_SZ] = {0};
+
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_mario_factorymictest_jni_FactoryMicTestJNI_stringFromJNI(
@@ -407,7 +407,9 @@ Java_com_mario_factorymictest_jni_FactoryMicTestJNI_inconsistentTest(JNIEnv *env
 
 
     MIC_DETECT_PARAM_T param = {0};
-
+    DETECT_RESULT *detect_result = NULL;
+    memset(str,0,300);
+    int total_chns = 0;
     signal(SIGTERM, (__sighandler_t) handle_sig);
     signal(SIGINT, (__sighandler_t) handle_sig);
     signal(SIGABRT, (__sighandler_t) handle_sig);
@@ -446,26 +448,70 @@ Java_com_mario_factorymictest_jni_FactoryMicTestJNI_inconsistentTest(JNIEnv *env
     param.mic_num = MIC_NUM;
     param.ref_num = REF_NUM;
     param.thld[0] = db_to_ratio(-3.5); //3db
-    param.thld[1] = 0;
+    param.thld[1] = db_to_ratio(-1.5); //1.5db
     param.thld[2] = 0;
     param.detect_flag = INCONSISTENT_DET;
-    mic_result = (DETECT_RESULT *) malloc(sizeof(DETECT_RESULT) * param.mic_num);
-    memset(mic_result, 0, sizeof(DETECT_RESULT) * param.mic_num);
-    if (mic_detect_test(client, &param, mic_result)) {
+    total_chns = param.mic_num + param.ref_num;
+    detect_result = (DETECT_RESULT *)malloc(sizeof(DETECT_RESULT) * total_chns);
+    memset(detect_result, 0, sizeof(DETECT_RESULT) * total_chns);
+    if(mic_detect_test(client, &param, detect_result)) {
         ALOGD("inconsistent test failed\n");
     }
-    memset(str, 0, sizeof(str));
     str[0] = '2';
     str[1] = ']';
-    for (int inx = 0; inx < MIC_NUM; inx++) {
+    for(int inx = 0; inx < MIC_NUM; inx++) {
         ALOGD("mic[%d] status: %d, energy_mean:%f\n", inx,
-              mic_result[inx].detect_status, \
-            mic_result[inx].energy_mean);
-        sprintf(str + strlen(str), "%d&&%f,", mic_result[inx].detect_status,
-                mic_result[inx].energy_mean);
-
+              detect_result[inx].detect_status,\
+            detect_result[inx].energy_mean);
+        sprintf(str + strlen(str), "%d&&%f,", detect_result[inx].detect_status,
+                detect_result[inx].energy_mean);
     }
+    for(int inx = MIC_NUM; inx < total_chns; inx++) {
+        ALOGD("ref[%d] status: %d, energy_mean:%f, energy_peak:%f\n", inx,
+              detect_result[inx].detect_status,\
+            detect_result[inx].energy_mean,\
+            detect_result[inx].energy_peak);
+        sprintf(str + strlen(str), "%d&&%f,", detect_result[inx].detect_status,
+                detect_result[inx].energy_mean);
+    }
+    ALOGD("inconsistent test done\n");
 
+
+
+
+//    param.sample_rate = 16000;
+//    param.mic_num = MIC_NUM;
+//    param.ref_num = REF_NUM;
+//    param.thld[0] = db_to_ratio(-3.5); //3db
+//    param.thld[1] = db_to_ratio(-1.5);
+//    param.thld[2] = 0;
+//    param.detect_flag = INCONSISTENT_DET;
+//    total_chns = param.mic_num + param.ref_num;
+//    mic_result = (DETECT_RESULT *) malloc(sizeof(DETECT_RESULT) * total_chns);
+//    memset(mic_result, 0, sizeof(DETECT_RESULT) * total_chns);
+//    if (mic_detect_test(client, &param, mic_result)) {
+//        ALOGD("inconsistent test failed\n");
+//    }
+//    memset(str, 0, sizeof(str));
+//    str[0] = '2';
+//    str[1] = ']';
+//    for (int inx = 0; inx < MIC_NUM; inx++) {
+//        ALOGD("mic[%d] status: %d, energy_mean:%f\n", inx,
+//              mic_result[inx].detect_status, \
+//            mic_result[inx].energy_mean);
+//        sprintf(str + strlen(str), "%d&&%f,", mic_result[inx].detect_status,
+//                mic_result[inx].energy_mean);
+//
+//    }
+//
+//
+//    for(int inx = MIC_NUM; inx < total_chns; inx++) {
+//        ALOGD("ref[%d] status: %d, energy_mean:%f, energy_peak:%f\n", inx,
+//              mic_result[inx].detect_status,
+//              mic_result[inx].energy_mean,
+//              mic_result[inx].energy_peak);
+//
+//    }
 
 //    char newString[302];
 //    newString[0] = '2';
@@ -477,8 +523,8 @@ Java_com_mario_factorymictest_jni_FactoryMicTestJNI_inconsistentTest(JNIEnv *env
 
     ALOGD("inconsistent test done\n");
 
-    if (mic_result) {
-        free(mic_result);
+    if (detect_result) {
+        free(detect_result);
     }
 
     //bds_callback(str);

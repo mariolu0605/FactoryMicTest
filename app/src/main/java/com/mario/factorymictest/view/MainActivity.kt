@@ -18,6 +18,7 @@ import kotlin.system.exitProcess
 
 class MainActivity : Activity(), IView {
 
+
     private lateinit var presenter: FactoryMicTestPresenter
     private val wakeButtonAnimatorSet = AnimatorSet()
     private val inconsistentButtonAnimatorSet = AnimatorSet()
@@ -39,6 +40,7 @@ class MainActivity : Activity(), IView {
 
         button_wake.setOnClickListener {
             notifyChangeWakeupTextView("正在进行唤醒测试")
+            notifyChangeWakeupTextColor(Color.WHITE)
             thread {
                 presenter.wakeupTest()
             }
@@ -115,7 +117,12 @@ class MainActivity : Activity(), IView {
 
         var inconsistentResult = ""
         for (i in status.indices) {
-            inconsistentResult += "Mic[$i] = ${status[i]}  energy = ${energy[i]} \n"
+            inconsistentResult += if (i < 4) {
+                "Mic[$i] = ${status[i]}  energy = ${energy[i]} \n"
+            } else {
+                "Ref[$i] = ${status[i]}  energy = ${energy[i]} \n"
+            }
+
         }
         this.runOnUiThread {
             textView_inconsistent.text = inconsistentResult
@@ -129,6 +136,10 @@ class MainActivity : Activity(), IView {
 
     override fun notifyChangeInconsistentTextView(content: String) {
         textView_inconsistent.text = content
+    }
+
+    override fun notifyChangeWakeupTextColor(color: Int) {
+        textView_wakeup.setTextColor(color)
     }
 
 

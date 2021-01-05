@@ -84,8 +84,8 @@ class FactoryMicTestPresenter(view: IView) {
         if (msg.contains("inconsistent")) {
             val subMsg = msg.substring(13)
 
-            val status = intArrayOf(-1,-1,-1,-1)
-            val energy = floatArrayOf(0f,0f,0f,0f)
+            val status = intArrayOf(-1,-1,-1,-1,-1,-1)
+            val energy = floatArrayOf(0f,0f,0f,0f,0f,0f)
 
             Log.d("MarioLu", subMsg.split(",").toString())
             for (i in 0..subMsg.split(",").size - 2) {

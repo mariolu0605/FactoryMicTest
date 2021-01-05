@@ -2,7 +2,6 @@
 #define _BD_MIC_DETECT_API_H
 #include<stdio.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,6 +15,7 @@ extern "C" {
 #define ERROR_FLAG_REF_UNUSUAL          0x20
 #define ERROR_FLAG_REF_OVER_LIMIT       0x40
 #define ERROR_FLAG_REF_ALL_ZEROS        0x80
+#define ERROR_FLAG_REF_INCONSIST        0x100
 
 typedef enum DETET_TYPE {
     INVALID_DET             = -1,
@@ -29,13 +29,14 @@ typedef struct MIC_DETECT_PARAM {
     int         sample_rate;
     int         mic_num;
     int         ref_num;
-    float       thld[3];
+    float       thld[3];        //一致性检测: thld[0]: mic一致性阈值，thld[1]: ref一致性阈值
     int         detect_flag;
 } MIC_DETECT_PARAM_T;
 
 struct DETECT_RESULT {
     int         detect_status;
     float       energy_mean;
+    float       energy_peak;
 };
 
 void *bd_mic_detect_init(MIC_DETECT_PARAM_T *param);

@@ -4,12 +4,11 @@ interface IView {
 
     fun notifyChangeWakeupResult(result: Boolean)
 
+    fun notifyChangeInconsistentResult(status: IntArray, energy: FloatArray, result: Boolean)
 
-    fun notifyChangeInconsistentResult(status:IntArray,energy:FloatArray,result: Boolean)
+    fun notifyChangeWakeupTextView(content: String)
 
+    fun notifyChangeInconsistentTextView(content: String)
 
-    fun notifyChangeWakeupTextView(content : String)
-
-
-    fun notifyChangeInconsistentTextView(content : String)
+    fun notifyChangeWakeupTextColor(color: Int)
 }
